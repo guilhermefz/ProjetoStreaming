@@ -8,6 +8,9 @@ document.addEventListener('DOMContentLoaded', function() {
     const confirmPasswordInput = document.getElementById('confirmPassword'); // Campo de confirmar senha
     const errorMessage = document.getElementById('errorMessage'); // Onde exibiremos mensagens de erro
 
+    // Cria ou abre um banco de dados PouchDB chamado 'users_db'.
+    const db = new PouchDB('users_db');
+    console.log('PouchDB "users_db" inicializado.');
 
     function displayError(message) {
         errorMessage.textContent = message; // Coloca a mensagem de texto dentro da div.
@@ -18,7 +21,7 @@ document.addEventListener('DOMContentLoaded', function() {
         errorMessage.classList.add('d-none'); // Adiciona a classe 'd-none' para esconder a div.
     }
 
-    registerForm.addEventListener('submit', function(event) {
+    registerForm.addEventListener('submit', async function(event) {
         event.preventDefault(); 
         // O '.value' pega o que o usuário digitou no campo de entrada.
         const username = usernameInput.value.trim(); // .trim() remove espaços extras no início/fim
@@ -59,28 +62,54 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
 
-        // 7. Simular o registro do usuário
-        // Em um projeto real, aqui você enviaria esses dados para um servidor/banco de dados.
-        // Para este exemplo, vamos "armazenar" o novo usuário no localStorage do navegador.
-        
-        // Verifica se o usuário (nome de usuário ou email) já existe (simulação)
-        const storedUsers = JSON.parse(localStorage.getItem('users')) || {};
-        
-        if (storedUsers[username] || Object.values(storedUsers).some(user => user.email === email)) {
-            displayError('Nome de usuário ou e-mail já registrado. Por favor, use outro.');
-            return;
+        try {
+            // Verifica se o nome de usuário já existe
+            try {
+                // Tenta buscar um documento com o _id igual ao username
+                await db.get(username);
+                displayError('Nome de usuário já registrado. Por favor, use outro.');
+                return;
+            } catch (err) {
+                // Se o erro for 'not_found', significa que o nome de usuário está disponível.
+                // Outros erros são problemas reais.
+                if (err.name !== 'not_found') {
+                    console.error("Erro ao verificar nome de usuário:", err);
+                    displayError('Erro ao verificar usuário. Tente novamente.');
+                    return;
+                }
+            }
+
+            // Verifica se o e-mail já existe (isso requer uma consulta mais complexa no PouchDB)
+            // Para simplificar agora, vamos fazer uma busca por todos os documentos e filtrar.
+            const allDocs = await db.allDocs({ include_docs: true });
+            const emailExists = allDocs.rows.some(row => row.doc.email === email);
+
+            if (emailExists) {
+                displayError('E-mail já registrado. Por favor, use outro.');
+                return;
+            }
+
+            // Se o usuário e o e-mail não existirem, cria o novo usuário.
+            // O _id é o identificador único do documento no PouchDB.
+            // O _id aqui será o username.
+            const newUser = {
+                _id: username, // PouchDB usa '_id' como chave primária única
+                email: email,
+                password: password, // Lembre-se: em um sistema real, a senha deve ser hash (criptografada)
+                type: 'user' // Define um tipo padrão para o usuário
+            };
+
+            // Salva o novo usuário no PouchDB
+            // db.put() insere ou atualiza um documento.
+            const response = await db.put(newUser);
+            console.log('Usuário registrado com sucesso:', response);
+
+            alert('Conta criada com sucesso! Faça login para continuar.');
+            window.location.href = 'login.html';
+
+        } catch (error) {
+            console.error('Erro durante o registro:', error);
+            displayError('Erro inesperado durante o registro. Tente novamente.');
         }
-
-        // Adiciona o novo usuário
-        storedUsers[username] = {
-            email: email,
-            password: password // Em um sistema real, a senha seria hash (criptografada)
-        };
-        localStorage.setItem('users', JSON.stringify(storedUsers));
-
-        // Se o registro foi "bem-sucedido", redireciona para a página de login
-        alert('Conta criada com sucesso! Faça login para continuar.');
-        window.location.href = 'login.html';
-    
     });
 });
