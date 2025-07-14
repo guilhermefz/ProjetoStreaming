@@ -1,5 +1,3 @@
-// js/auth.js
-
 document.addEventListener('DOMContentLoaded', function() {
     // 1. Conecta-se aos bancos de dados
     const dbUsers = new PouchDB('users_db');
@@ -44,7 +42,6 @@ document.addEventListener('DOMContentLoaded', function() {
                     // Login bem-sucedido, agora verificamos a FUNÇÃO do usuário
                     loginSuccessModal.show();
 
-                    // *** A MÁGICA ACONTECE AQUI ***
                     setTimeout(() => {
                         // Se o tipo do usuário for 'admin', redireciona para o painel de admin
                         if (userDoc.type === 'admin') {
