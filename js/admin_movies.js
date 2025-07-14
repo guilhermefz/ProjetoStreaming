@@ -105,6 +105,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const imageUrl = movieImageUrlInput.value.trim();
         const isFeatured = isFeaturedCheckbox.checked; // Para checkboxes, '.checked' retorna true ou false.
         const carouselImageUrl = document.getElementById('movieCarouselImageUrl').value.trim();
+        const fullVideoId = document.getElementById('movieFullVideoId').value.trim();
 
         // Se um campo obrigatório estiver vazio, exibimos um erro e paramos a execução da função.
         if (title === '') {
@@ -146,7 +147,8 @@ document.addEventListener('DOMContentLoaded', function() {
             category: category,
             imageUrl: imageUrl,
             isFeatured: isFeatured,
-            carouselImageUrl: carouselImageUrl
+            carouselImageUrl: carouselImageUrl,
+            fullVideoId: fullVideoId
         };
 
         console.log("Objeto do novo filme pronto para salvar:", newMovie);
@@ -253,6 +255,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 movieImageUrlInput.value = movieToEdit.imageUrl;
                 isFeaturedCheckbox.checked = movieToEdit.isFeatured;
                 document.getElementById('movieCarouselImageUrl').value = movieToEdit.carouselImageUrl || '';
+                document.getElementById('movieFullVideoId').value = movieToEdit.fullVideoId || '';
 
                 // 3. Armazena o _id e _rev do filme que está sendo editado no próprio formulário.
                 // Isso é CRUCIAL para que, ao submeter, saibamos que é uma EDIÇÃO e QUAL documento ATUALIZAR.

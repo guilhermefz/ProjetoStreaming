@@ -1,4 +1,26 @@
 /* Estilo Básico para o Fundo da Página */
 body {
     background-color: #8b7c7c; /* Fundo bem escuro */
+    font-family: 'Montserrat', sans-serif;
+    
+}
+
+.login-page-bg {
+    background-image: url('../img/imagemLogin.png'); 
+    background-size: cover; /* Faz a imagem cobrir toda a tela sem distorcer */
+    background-position: center; /* Centraliza a imagem */
+    background-repeat: no-repeat; /* Impede que a imagem se repita */
+    background-attachment: fixed; /* Mantém a imagem fixa durante a rolagem */
+}
+
+/* Sobreposição escura para garantir a legibilidade do formulário */
+.login-page-bg::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.6); /* Cor preta com 60% de opacidade */
+    z-index: -1; /* Coloca a sobreposição atrás de todo o conteúdo */
 }

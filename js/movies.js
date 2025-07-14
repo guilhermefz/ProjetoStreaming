@@ -10,14 +10,14 @@ document.addEventListener('DOMContentLoaded', async function() {
 
     // 3. Dados de filmes de exemplo (com IDs de trailer corrigidos)
     const initialMoviesData = [
-        { _id: 'movie_a_origem', type: 'movie', title: 'A Origem', genre: 'Ficção Científica', synopsis: 'Um ladrão que rouba segredos corporativos...', imageUrl: '../img/aOrigem.png', isFeatured: true, trailerYoutubeId: 'R_VX0e0PX90' },
-        { _id: 'movie_o_poderoso_chefao', type: 'movie', title: 'O Poderoso Chefão', genre: 'Drama', synopsis: 'O patriarca de uma família da máfia...', imageUrl: '../img/poderosoChefao.png', isFeatured: true, trailerYoutubeId: '0v6MO0EB7UY' },
-        { _id: 'movie_interestelar', type: 'movie', title: 'Interestelar', genre: 'Ficção Científica', synopsis: 'Uma equipe de exploradores viaja...', imageUrl: '../img/Interestelar.png', isFeatured: false, trailerYoutubeId: 'mbbPSq63yuM' },
-        { _id: 'movie_a_chegada', type: 'movie', title: 'A Chegada', genre: 'Ficção Científica', synopsis: 'Quando naves alienígenas aterrissam...', imageUrl: '../img/aChegada.jpeg', isFeatured: false, trailerYoutubeId: 'isWwUJf4KEA' },
-        { _id: 'movie_forrest_gump', type: 'movie', title: 'Forrest Gump', genre: 'Drama', synopsis: 'As aventuras de um homem simples...', imageUrl: '../img/forrestGump.jpeg', isFeatured: false, trailerYoutubeId: 'vDY_uZAaU7g' },
-        { _id: 'movie_pulp_fiction', type: 'movie', title: 'Pulp Fiction', genre: 'Drama', synopsis: 'As vidas de dois assassinos de aluguel...', imageUrl: '../img/pulpFiction.webp', isFeatured: false, trailerYoutubeId: 'VX68740t308' }
+        { _id: 'movie_a_origem', type: 'movie', title: 'A Origem', genre: 'Ficção Científica', synopsis: 'Um ladrão que rouba segredos corporativos...', imageUrl: '../img/aOrigem.png', isFeatured: false, trailerYoutubeId: 'R_VX0e0PX90', carouselImageUrl: '',fullVideoId: 'R_VX0e0PX90',category: 'ficcao-cientifica' },
+        { _id: 'movie_o_poderoso_chefao', type: 'movie', title: 'O Poderoso Chefão', genre: 'Drama', synopsis: 'O patriarca de uma família da máfia...', imageUrl: '../img/poderosoChefao.png', isFeatured: true, trailerYoutubeId: '0v6MO0EB7UY', carouselImageUrl: '',fullVideoId: '0v6MO0EB7UY',category: 'drama' },
+        { _id: 'movie_interestelar', type: 'movie', title: 'Interestelar', genre: 'Ficção Científica', synopsis: 'Uma equipe de exploradores viaja...', imageUrl: '../img/Interestelar.png', isFeatured: false, trailerYoutubeId: 'mbbPSq63yuM', carouselImageUrl: '',fullVideoId: 'mbbPSq6g3yuM',category: 'ficcao-cientifica' },
+        { _id: 'movie_a_chegada', type: 'movie', title: 'A Chegada', genre: 'Ficção Científica', synopsis: 'Quando naves alienígenas aterrissam...', imageUrl: '../img/aChegada.jpeg', isFeatured: false, trailerYoutubeId: 'isWwUJf4KEA', carouselImageUrl: '',fullVideoId: 'isWwUJf4KEA',category: 'ficcao-cientifica' },
+        { _id: 'movie_forrest_gump', type: 'movie', title: 'Forrest Gump', genre: 'Drama', synopsis: 'As aventuras de um homem simples...', imageUrl: '../img/forrestGump.jpeg', isFeatured: false, trailerYoutubeId: 'vDY_uZAaU7g', carouselImageUrl: '',fullVideoId: 'vDY_uZAaU7g',category: 'drama' },
+        { _id: 'movie_pulp_fiction', type: 'movie', title: 'Pulp Fiction', genre: 'Drama', synopsis: 'As vidas de dois assassinos de aluguel...', imageUrl: '../img/pulpFiction.webp', isFeatured: true, trailerYoutubeId: 'VX68740t308', carouselImageUrl: '../img/pulp-fictionCapa.jpg',fullVideoId: 'VX68740t308',category: 'terror' },
+        { _id: 'movie_cinco_passos', type: 'movie', title: 'A Cinco Passos de Você', genre: 'Drama', synopsis: 'esperança, romance e a luta contra as dificuldades da vida.', imageUrl: '../img/CincoPassosCapa.jpg', isFeatured: false, trailerYoutubeId: 'OL-Xy-LzP_4', carouselImageUrl: '',fullVideoId: 'RyqwBSI67YI',category: 'drama' }
     ];
-
     // Função para adicionar os filmes de exemplo ao DB, se ele estiver vazio
     async function addInitialMovies(movies) {
         for (const movie of movies) {
@@ -45,7 +45,7 @@ document.addEventListener('DOMContentLoaded', async function() {
                 <p class="card-text flex-grow-1">${movie.synopsis.substring(0, 100)}...</p>
                 <p class="card-text"><small class="text-muted">Gênero: ${movie.genre}</small></p>
                 <div class="mt-auto">
-                    <a href="#" class="btn btn-danger btn-sm">Ver Detalhes</a>
+                    <a href="player.html?movieId=${movie._id}" class="btn btn-danger btn-sm">Assistir Agora</a>
                     <button type="button" class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#trailerModal" data-youtube-id="${movie.trailerYoutubeId}">
                         Ver Trailer
                     </button>

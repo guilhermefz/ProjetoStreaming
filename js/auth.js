@@ -1,62 +1,76 @@
+// js/auth.js
+
 document.addEventListener('DOMContentLoaded', function() {
+    // 1. Conecta-se aos bancos de dados
+    const dbUsers = new PouchDB('users_db');
+    console.log('PouchDB "users_db" inicializado para autenticação.');
+
+    // 2. Pega referências aos elementos do formulário
     const loginForm = document.getElementById('loginForm');
     const usernameInput = document.getElementById('username');
     const passwordInput = document.getElementById('password');
     const errorMessage = document.getElementById('errorMessage');
 
-    // Cria ou abre um banco de dados PouchDB chamado 'users_db'.
-    // Deve ser o MESMO NOME usado no register.js para acessar os mesmos dados.
-    const db = new PouchDB('users_db');
-    console.log('PouchDB "users_db" inicializado em auth.js.');
+    // 3. Prepara o Modal de Sucesso (o "controle remoto")
+    // É importante pegar o elemento HTML primeiro
+    const loginSuccessModalElement = document.getElementById('loginSuccessModal');
+    // E só então criar o objeto de controle do Bootstrap
+    const loginSuccessModal = new bootstrap.Modal(loginSuccessModalElement, {
+        keyboard: false, // Impede que a tecla ESC feche o modal
+        backdrop: 'static' // Impede que cliques fora do modal o fechem
+    });
 
-    if (!loginForm || !usernameInput || !passwordInput || !errorMessage) {
-        console.error('Erro: Um ou mais elementos HTML essenciais não foram encontrados. Verifique os IDs no HTML e no JS.');
-        return; 
-    }
+    // 4. Adiciona o 'event listener' para o envio do formulário
+    if (loginForm) {
+        loginForm.addEventListener('submit', async function(event) {
+            // Impede o recarregamento padrão da página
+            event.preventDefault();
+            errorMessage.classList.add('d-none'); // Esconde erros antigos
 
-    function displayError(message) {
-        errorMessage.textContent = message;
-        errorMessage.classList.remove('d-none');
-    }
-    function hideError() {
-        errorMessage.textContent = '';
-        errorMessage.classList.add('d-none');
-    }
+            const username = usernameInput.value.trim();
+            const password = passwordInput.value.trim();
 
-    loginForm.addEventListener('submit', async function(event) {
-        event.preventDefault(); 
-        
-        errorMessage.textContent = '';
-        errorMessage.classList.add('d-none'); 
-
-        const username = usernameInput.value;
-        const password = passwordInput.value;
-
-        console.log('Usuário digitado:', username);
-        console.log('Senha digitada:', password);
-
-        try {
-            // Primeiro, verifica o usuário 'admin' como exceção (ainda fixo)
+            // --- Lógica de Login do Administrador ---
             if (username === 'admin' && password === 'admin') {
-                alert('Login de Administrador bem-sucedido!');
-                window.location.href = 'admin.html';
+                // Mostra o modal de sucesso
+                loginSuccessModal.show();
+                // Aguarda 2 segundos e então redireciona
+                setTimeout(() => {
+                    window.location.href = 'admin.html';
+                }, 2000); // 2000ms = 2 segundos
                 return; // Para a execução aqui
             }
 
-            const userDoc = await db.get(username); // userDoc será o documento do usuário se encontrado
+            // --- Lógica de Login do Usuário Comum ---
+            try {
+                // Busca o usuário no banco de dados pelo seu nome/email (que é o _id)
+                const userDoc = await dbUsers.get(username);
 
-            if (userDoc && userDoc.password === password) {
-                alert('Login de Usuário bem-sucedido!');
-                window.location.href = 'index.html';
-            } else {
-                displayError('Usuário ou senha inválidos.');
+                // Verifica se a senha corresponde
+                if (userDoc && userDoc.password === password) {
+                    // Mostra o modal de sucesso
+                    loginSuccessModal.show();
+                    // Aguarda 2 segundos e então redireciona
+                    setTimeout(() => {
+                        window.location.href = 'index.html';
+                    }, 2000);
+                } else {
+                    // Se o usuário existe mas a senha está errada
+                    errorMessage.textContent = 'Senha incorreta. Tente novamente.';
+                    errorMessage.classList.remove('d-none');
+                }
+            } catch (error) {
+                // Se o dbUsers.get(username) falhar, significa que o usuário não foi encontrado
+                if (error.name === 'not_found') {
+                    errorMessage.textContent = 'Usuário não encontrado.';
+                    errorMessage.classList.remove('d-none');
+                } else {
+                    // Para outros erros inesperados do banco de dados
+                    errorMessage.textContent = 'Ocorreu um erro. Tente novamente.';
+                    errorMessage.classList.remove('d-none');
+                    console.error('Erro de login:', error);
+                }
             }
-        } catch (err) {
-            if (err.name === 'not_found') {
-                displayError('Usuário ou senha inválidos.');
-            } else {
-                console.error('Erro ao tentar login:', err);
-                displayError('Ocorreu um erro ao tentar fazer login. Tente novamente.');
-            }
-    }});
+        });
+    }
 });
