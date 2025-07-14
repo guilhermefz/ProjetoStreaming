@@ -11,61 +11,59 @@ document.addEventListener('DOMContentLoaded', function() {
     const passwordInput = document.getElementById('password');
     const errorMessage = document.getElementById('errorMessage');
 
-    // 3. Prepara o Modal de Sucesso (o "controle remoto")
-    // É importante pegar o elemento HTML primeiro
+    // 3. Prepara o Modal de Sucesso
     const loginSuccessModalElement = document.getElementById('loginSuccessModal');
-    // E só então criar o objeto de controle do Bootstrap
     const loginSuccessModal = new bootstrap.Modal(loginSuccessModalElement, {
-        keyboard: false, // Impede que a tecla ESC feche o modal
-        backdrop: 'static' // Impede que cliques fora do modal o fechem
+        keyboard: false,
+        backdrop: 'static'
     });
 
     // 4. Adiciona o 'event listener' para o envio do formulário
     if (loginForm) {
         loginForm.addEventListener('submit', async function(event) {
-            // Impede o recarregamento padrão da página
             event.preventDefault();
-            errorMessage.classList.add('d-none'); // Esconde erros antigos
+            errorMessage.classList.add('d-none');
 
             const username = usernameInput.value.trim();
             const password = passwordInput.value.trim();
 
-            // --- Lógica de Login do Administrador ---
+            // --- Lógica de Login do Super-Administrador (sempre existe) ---
             if (username === 'admin' && password === 'admin') {
-                // Mostra o modal de sucesso
                 loginSuccessModal.show();
-                // Aguarda 2 segundos e então redireciona
                 setTimeout(() => {
                     window.location.href = 'admin.html';
-                }, 2000); // 2000ms = 2 segundos
-                return; // Para a execução aqui
+                }, 2000);
+                return;
             }
 
-            // --- Lógica de Login do Usuário Comum ---
+            // --- Lógica de Login para TODOS os outros usuários ---
             try {
-                // Busca o usuário no banco de dados pelo seu nome/email (que é o _id)
                 const userDoc = await dbUsers.get(username);
 
-                // Verifica se a senha corresponde
                 if (userDoc && userDoc.password === password) {
-                    // Mostra o modal de sucesso
+                    // Login bem-sucedido, agora verificamos a FUNÇÃO do usuário
                     loginSuccessModal.show();
-                    // Aguarda 2 segundos e então redireciona
+
+                    // *** A MÁGICA ACONTECE AQUI ***
                     setTimeout(() => {
-                        window.location.href = 'index.html';
+                        // Se o tipo do usuário for 'admin', redireciona para o painel de admin
+                        if (userDoc.type === 'admin') {
+                            window.location.href = 'admin.html';
+                        } else {
+                            // Senão, redireciona para a página inicial
+                            window.location.href = 'index.html';
+                        }
                     }, 2000);
+
                 } else {
-                    // Se o usuário existe mas a senha está errada
                     errorMessage.textContent = 'Senha incorreta. Tente novamente.';
                     errorMessage.classList.remove('d-none');
                 }
             } catch (error) {
-                // Se o dbUsers.get(username) falhar, significa que o usuário não foi encontrado
                 if (error.name === 'not_found') {
                     errorMessage.textContent = 'Usuário não encontrado.';
                     errorMessage.classList.remove('d-none');
                 } else {
-                    // Para outros erros inesperados do banco de dados
                     errorMessage.textContent = 'Ocorreu um erro. Tente novamente.';
                     errorMessage.classList.remove('d-none');
                     console.error('Erro de login:', error);
