@@ -27,8 +27,20 @@
                     <li class="nav-item">
                         <a class="nav-link" href="#">Filmes</a>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#">Séries</a>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="categoryDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            Categorias
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="categoryDropdown" id="category-menu">
+                            <li><a class="dropdown-item" href="#" data-category="all">Todas</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="#" data-category="acao">Ação</a></li>
+                            <li><a class="dropdown-item" href="#" data-category="comedia">Comédia</a></li>
+                            <li><a class="dropdown-item" href="#" data-category="drama">Drama</a></li>
+                            <li><a class="dropdown-item" href="#" data-category="terror">Terror</a></li>
+                            <li><a class="dropdown-item" href="#" data-category="ficcao-cientifica">Ficção Científica</a></li>
+                            <li><a class="dropdown-item" href="#" data-category="animacao">Animação</a></li>
+                        </ul>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="login.html">Sair</a>
@@ -43,13 +55,25 @@
         
     </div>
     </div> <div class="container mt-5">
-        <h2 class="text-white mb-4">Filmes em Destaque</h2>
-        <div id="featured-movies" class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
-            <div class="col-md-12">
-                 <div class="card bg-secondary text-white text-center p-5">
-                     <p>Carregando filmes em destaque...</p>
-                  </div>
-          </div>
+        <div class="container mt-4">
+            <h2 class="text-white border-bottom border-secondary pb-2">Destaques</h2>
+            
+            <div id="featuredCarousel" class="carousel slide mt-3" data-bs-ride="carousel">
+                <div class="carousel-indicators" id="carousel-indicators">
+                    </div>
+
+                <div class="carousel-inner" id="carousel-inner">
+                    </div>
+
+                <button class="carousel-control-prev" type="button" data-bs-target="#featuredCarousel" data-bs-slide="prev">
+                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                    <span class="visually-hidden">Anterior</span>
+                </button>
+                <button class="carousel-control-next" type="button" data-bs-target="#featuredCarousel" data-bs-slide="next">
+                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                    <span class="visually-hidden">Próximo</span>
+                </button>
+            </div>
         </div>
     </div>
     <div class="container mt-5 mb-5">

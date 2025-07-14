@@ -1,104 +1,190 @@
 document.addEventListener('DOMContentLoaded', async function() {
-    const db = new PouchDB('movies_db');
+    // 1. Inicializar PouchDB para filmes
+    const dbMovies = new PouchDB('movies_db');
+    console.log('PouchDB "movies_db" inicializado para a página inicial.');
 
-    // 2. Referências aos elementos HTML onde os filmes serão exibidos
-    const featuredMoviesContainer = document.getElementById('featured-movies');
+    // 2. Referências aos elementos HTML
+    const carouselIndicators = document.getElementById('carousel-indicators');
+    const carouselInner = document.getElementById('carousel-inner');
     const allMoviesContainer = document.getElementById('all-movies');
 
-    
-    // Em um cenário real, estes dados viriam do seu banco de dados (PouchDB ou um backend).
-    const exampleMovies = [
-        { _id: 'movie_1', title: 'A Origem', genre: 'Ficção Científica', synopsis: 'Um ladrão que rouba segredos corporativos através do uso de tecnologia de sonho torna-se um fugitivo.', imageUrl: '../images/aOrigem.png', isFeatured: true, trailerYoutubeId: 'R_VX0e0PX90'},
-        { _id: 'movie_2', title: 'O Poderoso Chefão', genre: 'Drama', synopsis: 'O patriarca de uma família da máfia transfere o controle de seu império clandestino para seu filho relutante.', imageUrl: '../images/poderosoChefao.png', isFeatured: true, trailerYoutubeId: '0v6MO0EB7UY' },
-        { _id: 'movie_3', title: 'Interestelar', genre: 'Ficção Científica', synopsis: 'Uma equipe de exploradores viaja através de um buraco de minhoca no espaço na tentativa de garantir a sobrevivência da humanidade.', imageUrl: '../images/Interestelar.png', isFeatured: false, trailerYoutubeId: 'mbbPSq63yuM'},
-        { _id: 'movie_4', title: 'A Chegada', genre: 'Ficção Científica', synopsis: 'Quando naves alienígenas aterrissam ao redor do mundo, uma linguista de elite é recrutada pelos militares para determinar se os alienígenas vêm em paz ou são uma ameaça.', imageUrl: '../images/aChegada.jpeg', isFeatured: false, trailerYoutubeId: 'isWwUJf4KEA'},
-        { _id: 'movie_5', title: 'Forrest Gump', genre: 'Drama', synopsis: 'As aventuras de um homem simples, mas de bom coração, que testemunha e inadvertidamente influencia vários eventos históricos.', imageUrl: '../images/forrestGump.jpeg', isFeatured: false, trailerYoutubeId: 'vDY_uZAaU7g' },
-        { _id: 'movie_6', title: 'Pulp Fiction', genre: 'Drama', synopsis: 'As vidas de dois assassinos de aluguel, um boxeador, um gângster e sua esposa, e um par de assaltantes de restaurante se entrelaçam em quatro histórias de violência e redenção.', imageUrl: '../images/pulpFiction.webp', isFeatured: false, trailerYoutubeId: 'VX68740t308'}
+    // 3. Dados de filmes de exemplo (com IDs de trailer corrigidos)
+    const initialMoviesData = [
+        { _id: 'movie_a_origem', type: 'movie', title: 'A Origem', genre: 'Ficção Científica', synopsis: 'Um ladrão que rouba segredos corporativos...', imageUrl: '../img/aOrigem.png', isFeatured: true, trailerYoutubeId: 'R_VX0e0PX90' },
+        { _id: 'movie_o_poderoso_chefao', type: 'movie', title: 'O Poderoso Chefão', genre: 'Drama', synopsis: 'O patriarca de uma família da máfia...', imageUrl: '../img/poderosoChefao.png', isFeatured: true, trailerYoutubeId: '0v6MO0EB7UY' },
+        { _id: 'movie_interestelar', type: 'movie', title: 'Interestelar', genre: 'Ficção Científica', synopsis: 'Uma equipe de exploradores viaja...', imageUrl: '../img/Interestelar.png', isFeatured: false, trailerYoutubeId: 'mbbPSq63yuM' },
+        { _id: 'movie_a_chegada', type: 'movie', title: 'A Chegada', genre: 'Ficção Científica', synopsis: 'Quando naves alienígenas aterrissam...', imageUrl: '../img/aChegada.jpeg', isFeatured: false, trailerYoutubeId: 'isWwUJf4KEA' },
+        { _id: 'movie_forrest_gump', type: 'movie', title: 'Forrest Gump', genre: 'Drama', synopsis: 'As aventuras de um homem simples...', imageUrl: '../img/forrestGump.jpeg', isFeatured: false, trailerYoutubeId: 'vDY_uZAaU7g' },
+        { _id: 'movie_pulp_fiction', type: 'movie', title: 'Pulp Fiction', genre: 'Drama', synopsis: 'As vidas de dois assassinos de aluguel...', imageUrl: '../img/pulpFiction.webp', isFeatured: false, trailerYoutubeId: 'VX68740t308' }
     ];
 
-    // Função para criar um cartão de filme
+    // Função para adicionar os filmes de exemplo ao DB, se ele estiver vazio
+    async function addInitialMovies(movies) {
+        for (const movie of movies) {
+            try {
+                await dbMovies.get(movie._id);
+            } catch (err) {
+                if (err.name === 'not_found') {
+                    await dbMovies.put(movie);
+                    console.log(`Filme de exemplo '${movie.title}' adicionado ao 'movies_db'.`);
+                }
+            }
+        }
+    }
+
+    // 4. Função para criar o HTML de um cartão de filme
     function createMovieCard(movie) {
         const colDiv = document.createElement('div');
-        colDiv.className = 'col'; // Classe genérica de coluna para o grid Bootstrap
-
-        // Cria o cartão em si
+        colDiv.className = 'col';
         const cardDiv = document.createElement('div');
-        cardDiv.className = 'card h-100 bg-dark text-white shadow-sm'; // Estilos Bootstrap para o cartão
-
-        // Conteúdo do cartão
+        cardDiv.className = 'card h-100 bg-dark text-white shadow-sm';
         cardDiv.innerHTML = `
             <img src="${movie.imageUrl}" class="card-img-top" alt="${movie.title}">
-            <div class="card-body">
+            <div class="card-body d-flex flex-column">
                 <h5 class="card-title text-danger">${movie.title}</h5>
-                <p class="card-text">${movie.synopsis.substring(0, 100)}...</p>
+                <p class="card-text flex-grow-1">${movie.synopsis.substring(0, 100)}...</p>
                 <p class="card-text"><small class="text-muted">Gênero: ${movie.genre}</small></p>
+                <div class="mt-auto">
+                    <a href="#" class="btn btn-danger btn-sm">Ver Detalhes</a>
+                    <button type="button" class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#trailerModal" data-youtube-id="${movie.trailerYoutubeId}">
+                        Ver Trailer
+                    </button>
                 </div>
-                <a href="#" class="btn btn-danger btn-sm">Ver Detalhes</a>
-                <button type="button" class="btn btn-warning btn-sm mt-2" data-bs-toggle="modal" data-bs-target="#trailerModal" data-youtube-id="${movie.trailerYoutubeId}">
-                    Ver Trailer
-                </button>
+            </div>
         `;
-        
-        colDiv.appendChild(cardDiv); // Adiciona o cartão à coluna
-        return colDiv; // Retorna a coluna completa com o cartão
+        colDiv.appendChild(cardDiv);
+        return colDiv;
     }
 
-    // Função para exibir filmes em um contêiner específico
-    function displayMovies(movies, container) {
-        container.innerHTML = ''; // Limpa o conteúdo de "Carregando..."
-        if (movies.length === 0) {
-            container.innerHTML = '<div class="col-12"><p class="text-white text-center">Nenhum filme encontrado nesta categoria.</p></div>';
-            return;
-        }
-        movies.forEach(movie => {
-            const movieCard = createMovieCard(movie);
-            container.appendChild(movieCard);
+    // NOVA FUNÇÃO: Constrói os itens do carrossel
+    function buildCarousel(featuredMovies) {
+        // Limpa qualquer conteúdo anterior para evitar duplicatas
+        carouselIndicators.innerHTML = '';
+        carouselInner.innerHTML = '';
+    
+        // Itera sobre cada filme da lista de destaques
+        featuredMovies.forEach((movie, index) => {
+            
+            // --- Cria o Indicador (o pontinho) ---
+            const indicator = document.createElement('button');
+            indicator.type = 'button';
+            indicator.setAttribute('data-bs-target', '#featuredCarousel');
+            indicator.setAttribute('data-bs-slide-to', index);
+            
+            // --- Cria o Slide (a imagem e legenda) ---
+            const slide = document.createElement('div');
+            slide.classList.add('carousel-item');
+            
+            // O primeiro item do carrossel PRECISA ter a classe 'active' para ser visível
+            if (index === 0) {
+                indicator.classList.add('active');
+                slide.classList.add('active');
+            }
+    
+            // --- Lógica para escolher a imagem correta ---
+            // Se movie.carouselImageUrl existir e não for uma string vazia, usa ela.
+            // Senão, usa a movie.imageUrl padrão como alternativa (fallback).
+            const imageSrc = movie.carouselImageUrl || movie.imageUrl;
+    
+            // Define o conteúdo HTML do slide, agora usando a variável imageSrc
+            slide.innerHTML = `
+                <img src="${imageSrc}" class="d-block w-100" alt="${movie.title}" style="max-height: 400px; object-fit: cover;">
+                <div class="carousel-caption d-none d-md-block">
+                    <h5>${movie.title}</h5>
+                    <p>${movie.synopsis.substring(0, 100)}...</p>
+                </div>
+            `;
+            
+            // Adiciona o indicador e o slide recém-criados ao HTML da página
+            carouselIndicators.appendChild(indicator);
+            carouselInner.appendChild(slide);
         });
     }
+    
+    // 5. Função para buscar os filmes do PouchDB e exibi-los na página
+    async function displayMovies(category = 'all') {
+        // Limpa apenas a área da grade principal de filmes
+        allMoviesContainer.innerHTML = '<div class="col-12"><p class="text-white text-center">Carregando filmes...</p></div>';
 
-    // 4. Exibir filmes ao carregar a página
-    // Filmes em destaque
-    const featured = exampleMovies.filter(movie => movie.isFeatured);
-    displayMovies(featured, featuredMoviesContainer);
+        try {
+            const allDocs = await dbMovies.allDocs({ include_docs: true });
+            const allMovies = allDocs.rows
+                .map(row => row.doc)
+                .filter(doc => doc.type === 'movie' && !doc._deleted);
 
-    // Todos os filmes
-    displayMovies(exampleMovies, allMoviesContainer);
+            // --- Lógica do Carrossel ---
+            // O carrossel só é atualizado se estivermos na visão principal
+            if (category === 'all') {
+                const featured = allMovies.filter(movie => movie.isFeatured);
+                if (featured.length > 0) {
+                    buildCarousel(featured);
+                } else {
+                    // Se não houver destaques, mostra uma mensagem dentro do carrossel
+                    carouselInner.innerHTML = '<div class="carousel-item active"><div class="text-center p-5">Nenhum filme em destaque.</div></div>';
+                }
+            }
 
-    // TODO: Adicionar lógica para buscar do PouchDB e lidar com categorias no futuro
+            // --- Lógica da Grade "Todos os Filmes" ---
+            let moviesToDisplay = allMovies;
+            // Se uma categoria foi selecionada, filtra a lista para a grade
+            if (category !== 'all') {
+                moviesToDisplay = allMovies.filter(movie => movie.category === category);
+            }
 
-    // --- NOVO TRECHO: Lógica do Modal do Trailer ---
+            allMoviesContainer.innerHTML = ''; // Limpa a área da grade
 
-    // 5. Referências aos elementos do modal
+            if (moviesToDisplay.length === 0) {
+                allMoviesContainer.innerHTML = '<div class="col-12"><p class="text-white text-center">Nenhum filme encontrado.</p></div>';
+            } else {
+                moviesToDisplay.forEach(movie => {
+                    const movieCard = createMovieCard(movie);
+                    allMoviesContainer.appendChild(movieCard);
+                });
+            }
+
+        } catch (error) {
+            console.error('Erro ao carregar filmes:', error);
+            allMoviesContainer.innerHTML = '<div class="col-12"><p class="text-white text-center text-danger">Erro ao carregar filmes.</p></div>';
+        }
+    }
+    // 6. Lógica do Modal do Trailer
     const trailerModal = document.getElementById('trailerModal');
     const youtubePlayer = document.getElementById('youtubePlayer');
 
-    // 6. Adiciona um event listener para quando o modal é mostrado (aberto)
-    // O evento 'shown.bs.modal' é disparado pelo Bootstrap quando o modal se torna visível.
-    trailerModal.addEventListener('shown.bs.modal', function(event) {
-        // Obtém o botão que ativou o modal (o botão "Ver Trailer" clicado)
-        const button = event.relatedTarget; 
-        // Obtém o ID do YouTube do atributo 'data-youtube-id' do botão
-        const youtubeId = button.getAttribute('data-youtube-id'); 
+    if (trailerModal) {
+        trailerModal.addEventListener('shown.bs.modal', function(event) {
+            const button = event.relatedTarget;
+            const youtubeId = button.getAttribute('data-youtube-id');
+            // **ESTA É A CORREÇÃO PRINCIPAL**
+            const embedUrl = `https://www.youtube.com/embed/${youtubeId}?autoplay=1&rel=0`;
+            youtubePlayer.src = embedUrl;
+        });
 
-        // Constrói a URL de incorporação do YouTube.
-        // `autoplay=1` faz o vídeo iniciar automaticamente.
-        // `rel=0` impede a exibição de vídeos relacionados ao final.
-        // `modestbranding=1` remove o logotipo do YouTube.
-        const embedUrl = `https://www.youtube.com/embed/${youtubeId}?autoplay=1&rel=0&modestbranding=1`;
-        
-        // Define a URL no atributo 'src' do iframe para carregar e iniciar o vídeo
-        youtubePlayer.src = embedUrl;
-    });
+        trailerModal.addEventListener('hide.bs.modal', function() {
+            youtubePlayer.src = '';
+        });
+    }
 
-    // 7. Adiciona um event listener para quando o modal é ocultado (fechado)
-    // O evento 'hide.bs.modal' é disparado pelo Bootstrap antes do modal ser ocultado.
-    trailerModal.addEventListener('hide.bs.modal', function() {
-        // Para o vídeo limpando o atributo 'src' do iframe
-        youtubePlayer.src = ''; 
-    });
 
-    // --- FIM NOVO TRECHO ---
+    const categoryMenu = document.getElementById('category-menu');
 
-    // TODO: Adicionar lógica para lidar com categorias no futuro (fica para os próximos passos)
+    if (categoryMenu) {
+        categoryMenu.addEventListener('click', function(event) {
+            // Impede o comportamento padrão do link (que é recarregar a página ou ir para '#')
+            event.preventDefault();
 
+            // Verifica se o elemento clicado é de fato um link de categoria
+            if (event.target.classList.contains('dropdown-item')) {
+                // Pega o valor do atributo 'data-category' do link clicado
+                const selectedCategory = event.target.getAttribute('data-category');
+
+                // Chama nossa função de exibição, passando a categoria selecionada.
+                displayMovies(selectedCategory);
+            }
+        });
+    }
+
+    // 7. Execução Inicial
+    await addInitialMovies(initialMoviesData);
+    await displayMovies();
 });

@@ -11,16 +11,108 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 
     </head>
-        <body class="bg-dark text-white">
-            <div class="container mt-5">
-                <h1 class="text-center text-danger mb-4">Bem-vindo(a), Administrador(a)!</h1>
-                
-                <p class="text-center lead">Aqui é onde você poderá gerenciar filmes, séries, usuários e configurações do site.</p>
-                
-                <div class="text-center mt-4">
-                    <a href="login.html" class="btn btn-secondary">Voltar para o Login</a>
+    <body class="bg-dark text-white">
+        <nav class="navbar navbar-expand-lg navbar-dark bg-secondary">
+            <div class="container-fluid">
+                <a class="navbar-brand text-danger" href="#">Admin Panel</a>
+                <div class="collapse navbar-collapse" id="adminNavbar">
+                    <ul class="navbar-nav ms-auto">
+                        <li class="nav-item">
+                            <a class="nav-link active" aria-current="page" href="admin.html">Gerenciar Filmes</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">Gerenciar Usuários</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="login.html">Sair</a>
+                        </li>
+                    </ul>
                 </div>
             </div>
-        </div> <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
-        </body>
+        </nav>
+
+        <div class="container mt-5">
+            <h1 class="text-center text-danger mb-4">Gerenciar Filmes</h1>
+            
+            <div class="card bg-secondary text-white p-4 mb-5">
+                <h2 class="card-title text-center text-warning mb-4">Cadastrar Novo Filme</h2>
+                
+                <form id="movieForm">
+                    <div class="mb-3">
+                        <label for="movieTitle" class="form-label">Título do Filme:</label>
+                        <input type="text" class="form-control bg-dark text-white border-secondary" id="movieTitle" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="movieSynopsis" class="form-label">Sinopse:</label>
+                        <textarea class="form-control bg-dark text-white border-secondary" id="movieSynopsis" rows="3" required></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label for="movieTrailerId" class="form-label">ID do Trailer (YouTube):</label>
+                        <input type="text" class="form-control bg-dark text-white border-secondary" id="movieTrailerId" placeholder="Ex: dQw4w9WgXcQ" required>
+                        <div class="form-text text-warning">Busque o trailer no YouTube e traga o código final.</div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="movieCategory" class="form-label">Categoria:</label>
+                        <select class="form-select bg-dark text-white border-secondary" id="movieCategory" required>
+                            <option value="">Selecione uma categoria</option>
+                            <option value="acao">Ação</option>
+                            <option value="comedia">Comédia</option>
+                            <option value="drama">Drama</option>
+                            <option value="terror">Terror</option>
+                            <option value="ficcao-cientifica">Ficção Científica</option>
+                            <option value="animacao">Animação</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="movieImageUrl" class="form-label">URL da Imagem de Capa:</label>
+                        <input type="text" class="form-control bg-dark text-white border-secondary" id="movieImageUrl" placeholder="Ex: ../img/meu_filme.png ou https://exemplo.com/capa.jpg" required>
+                        <div class="form-text text-warning">Atenção: Apenas URLs de imagem. Não é possível enviar arquivos diretamente sem um servidor.</div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="movieCarouselImageUrl" class="form-label">URL da Imagem do Carrossel (Opcional):</label>
+                        <input type="text" class="form-control bg-dark text-white border-secondary" id="movieCarouselImageUrl" placeholder="Cole a URL da imagem 1024x256 aqui">
+                        <div class="form-text text-info">Se este campo for deixado em branco, a imagem de capa será usada no carrossel.</div>
+                    </div>
+                    <div class="form-check mb-4">
+                        <input class="form-check-input" type="checkbox" value="" id="isFeatured">
+                        <label class="form-check-label" for="isFeatured">
+                            Marcar como Destaque
+                        </label>
+                    </div>
+                    
+                    <div id="adminErrorMessage" class="alert alert-danger d-none text-center" role="alert"></div>
+                    <div id="adminSuccessMessage" class="alert alert-success d-none text-center" role="alert"></div>
+        
+                    <button type="submit" class="btn btn-danger w-100">Adicionar Filme</button>
+                </form>
+            </div>
+            
+            <div class="card bg-secondary text-white p-4 mb-5">
+                <h2 class="card-title text-center text-info mb-4">Filmes Cadastrados</h2>
+                <div class="table-responsive">
+                    <table class="table table-dark table-striped table-hover">
+                        <thead>
+                            <tr>
+                                <th scope="col">Título</th>
+                                <th scope="col">Categoria</th>
+                                <th scope="col">Trailer ID</th>
+                                <th scope="col">Destaque</th>
+                                <th scope="col">Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="movieList">
+                            <tr>
+                                <td colspan="5" class="text-center">Carregando filmes...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div id="noMoviesMessage" class="alert alert-info text-center d-none" role="alert">
+                    Nenhum filme cadastrado ainda.
+                </div>
+            </div>
+            </div> <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+        <script src="https://cdn.jsdelivr.net/npm/pouchdb@8.0.1/dist/pouchdb.min.js"></script>
+        <script src="../js/admin_movies.js"></script>
+    </body>
 </html>
